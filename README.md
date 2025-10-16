@@ -6,6 +6,12 @@ A high-end Discord bot for advanced voice channel management with a beautiful, i
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.3.3-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
+## 📸 Bot Interface
+
+![Bot Sticky Message Panel](https://raw.githubusercontent.com/SPIN0ZAi/One-Tap---Advanced-Discord-JTC-Bot/feature/initial-release/Screenshot%202025-10-16%20165334.png)
+
+*Interactive sticky message with all control buttons displayed in voice channel chat*
+
 ## ✨ Features
 
 ### 🎯 Core Functionality
