@@ -166,26 +166,25 @@ export class ModalHandler {
   private async handleSetCustomGif(interaction: ModalSubmitInteraction, voiceChannel: VoiceChannel) {
     const gifUrl = interaction.fields.getTextInputValue('gif_url_input').trim();
     
+    // Defer immediately to prevent timeout
+    await interaction.deferReply({ ephemeral: true });
+    
     // Basic URL validation
     if (!gifUrl.startsWith('http://') && !gifUrl.startsWith('https://')) {
-      return await interaction.reply({
+      return await interaction.editReply({
         embeds: [createErrorEmbed('Invalid URL. Please provide a valid HTTP/HTTPS link.')],
-        ephemeral: true,
       });
     }
     
-    await interaction.deferReply({ ephemeral: true });
-    
     try {
-      // Save custom GIF to database
-      this.bot.db.setCustomGif(voiceChannel.id, gifUrl);
+      // Save custom GIF to user preferences (persists across all channels)
+      this.bot.db.setUserCustomGif(interaction.user.id, interaction.guildId!, gifUrl);
       
       await interaction.editReply({
-        embeds: [createSuccessEmbed(`🎨 Custom GIF set successfully! Leave and rejoin your channel to see the new GIF.`)],
+        embeds: [createSuccessEmbed(`🎨 Custom GIF saved! It will appear in all your future channels. Leave and rejoin to see it now!`)],
       });
       
-      // Note: We don't refresh sticky message here because the user needs to recreate the channel
-      // to see the new GIF (it's set when the channel is created)
+      console.log(`✅ User ${interaction.user.tag} set custom GIF: ${gifUrl}`);
     } catch (error) {
       console.error('Error setting custom GIF:', error);
       await interaction.editReply({

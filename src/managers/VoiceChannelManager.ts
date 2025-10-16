@@ -150,13 +150,13 @@ export class VoiceChannelManager {
       // Get owner for avatar
       const owner = await this.bot.client.users.fetch(member.id);
       
-      // Determine which GIF to use - priority: custom > user-specific > default
+      // Determine which GIF to use - priority: user custom GIF > user-specific hardcoded > default
       let gifUrl = 'https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3Z3EzYzFjNDFyZjYxYnJ1NjQ1NWw4emkzdHc0ODUxd3g3Y3R0cnVxcCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/UC8DbMqXvkpd6/giphy.gif';
       
-      // Check if user has set a custom GIF for this channel
-      const customGif = this.bot.db.getCustomGif(voiceChannel.id);
-      if (customGif) {
-        gifUrl = customGif;
+      // Check if user has set a custom GIF (persistent across all their channels)
+      const userCustomGif = this.bot.db.getUserCustomGif(member.id, guild.id);
+      if (userCustomGif) {
+        gifUrl = userCustomGif;
       } else if (member.id === '828350357867724841') {
         gifUrl = 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExc25ncnA1bmdrdDRmNXZkNWNhZG9xZzdpOGJkZm9odjZxN29vdHkxdyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/10m3iotMeYwSYw/giphy.gif';
       } else if (member.id === '302125862340526120') {

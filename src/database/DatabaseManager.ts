@@ -90,14 +90,26 @@ export class DatabaseManager {
       )
     `);
 
+    // User preferences table (for persistent settings like custom GIFs)
+    this.db.exec(`
+      CREATE TABLE IF NOT EXISTS user_preferences (
+        user_id TEXT PRIMARY KEY,
+        guild_id TEXT NOT NULL,
+        custom_gif TEXT,
+        created_at INTEGER NOT NULL,
+        updated_at INTEGER NOT NULL
+      )
+    `);
+
     // Create indexes
     this.db.exec(`
       CREATE INDEX IF NOT EXISTS idx_voice_channels_guild ON voice_channels(guild_id);
       CREATE INDEX IF NOT EXISTS idx_coowners_channel ON coowners(channel_id);
       CREATE INDEX IF NOT EXISTS idx_permissions_channel ON channel_permissions(channel_id);
+      CREATE INDEX IF NOT EXISTS idx_user_preferences_guild ON user_preferences(guild_id);
     `);
 
-    // Migration: Add custom_gif column if it doesn't exist
+    // Migration: Add custom_gif column if it doesn't exist (legacy, will use user_preferences now)
     try {
       this.db.exec(`ALTER TABLE voice_channels ADD COLUMN custom_gif TEXT`);
       console.log('✅ Added custom_gif column to voice_channels table');
@@ -189,6 +201,24 @@ export class DatabaseManager {
     `).run(newOwnerId, channelId);
   }
 
+  // User Preferences Operations (for persistent custom GIFs per user)
+  setUserCustomGif(userId: string, guildId: string, gifUrl: string | null): void {
+    const now = Date.now();
+    this.db.prepare(`
+      INSERT OR REPLACE INTO user_preferences (user_id, guild_id, custom_gif, created_at, updated_at)
+      VALUES (?, ?, ?, COALESCE((SELECT created_at FROM user_preferences WHERE user_id = ?), ?), ?)
+    `).run(userId, guildId, gifUrl, userId, now, now);
+  }
+
+  getUserCustomGif(userId: string, guildId: string): string | null {
+    const stmt = this.db.prepare(`
+      SELECT custom_gif FROM user_preferences WHERE user_id = ? AND guild_id = ?
+    `);
+    const row = stmt.get(userId, guildId) as any;
+    return row?.custom_gif || null;
+  }
+
+  // Legacy methods (for backward compatibility)
   setCustomGif(channelId: string, gifUrl: string | null): void {
     this.db.prepare(`
       UPDATE voice_channels SET custom_gif = ? WHERE channel_id = ?
