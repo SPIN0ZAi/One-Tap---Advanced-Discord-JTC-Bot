@@ -155,12 +155,19 @@ export class VoiceChannelManager {
       
       // Check if user has set a custom GIF (persistent across all their channels)
       const userCustomGif = this.bot.db.getUserCustomGif(member.id, guild.id);
+      console.log(`🎨 Checking custom GIF for user ${member.user.tag} (${member.id}):`, userCustomGif);
+      
       if (userCustomGif) {
         gifUrl = userCustomGif;
+        console.log(`✅ Using user's custom GIF: ${gifUrl}`);
       } else if (member.id === '828350357867724841') {
         gifUrl = 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExc25ncnA1bmdrdDRmNXZkNWNhZG9xZzdpOGJkZm9odjZxN29vdHkxdyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/10m3iotMeYwSYw/giphy.gif';
+        console.log(`✅ Using hardcoded GIF for user 828350357867724841`);
       } else if (member.id === '302125862340526120') {
         gifUrl = 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMnlubDV5cXRkdzV0bzFjMDI5dHVicHAyaXo0MnE0NDk1dDBsdmR3eSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/DeSZZmHos0XvOGN117/giphy.gif';
+        console.log(`✅ Using hardcoded GIF for user 302125862340526120`);
+      } else {
+        console.log(`ℹ️ Using default GIF`);
       }
       
       // Create embed with all the controls - with bot icon at top left and custom GIF

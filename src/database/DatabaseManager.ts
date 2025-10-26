@@ -204,17 +204,21 @@ export class DatabaseManager {
   // User Preferences Operations (for persistent custom GIFs per user)
   setUserCustomGif(userId: string, guildId: string, gifUrl: string | null): void {
     const now = Date.now();
+    console.log(`💾 Saving custom GIF for user ${userId} in guild ${guildId}: ${gifUrl}`);
     this.db.prepare(`
       INSERT OR REPLACE INTO user_preferences (user_id, guild_id, custom_gif, created_at, updated_at)
-      VALUES (?, ?, ?, COALESCE((SELECT created_at FROM user_preferences WHERE user_id = ?), ?), ?)
-    `).run(userId, guildId, gifUrl, userId, now, now);
+      VALUES (?, ?, ?, COALESCE((SELECT created_at FROM user_preferences WHERE user_id = ? AND guild_id = ?), ?), ?)
+    `).run(userId, guildId, gifUrl, userId, guildId, now, now);
+    console.log(`✅ Saved successfully!`);
   }
 
   getUserCustomGif(userId: string, guildId: string): string | null {
+    console.log(`🔍 Looking up custom GIF for user ${userId} in guild ${guildId}`);
     const stmt = this.db.prepare(`
       SELECT custom_gif FROM user_preferences WHERE user_id = ? AND guild_id = ?
     `);
     const row = stmt.get(userId, guildId) as any;
+    console.log(`📊 Database result:`, row);
     return row?.custom_gif || null;
   }
 
